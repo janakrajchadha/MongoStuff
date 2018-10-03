@@ -1,0 +1,27 @@
+{"1": {"title": "Num\ud83c\udd71er One", "thumbnail": {"thumbnail": "https://b.thumbs.redditmedia.com/FAS_fWvrpmzuPN6Rh67I9ahmovzoe-titgZNilnewpk.jpg",
+"height": 121, "width": 140},
+"created_utc": 1502621109.0,
+"author": "DrarenThiralas", "id": "6tehbc", "ups": 87082, "downs": 0, "media": "https://i.redd.it/7wgs4dkiihfz.png"}
+
+"4": {"title": "Allow", "thumbnail": {"thumbnail": "https://a.thumbs.redditmedia.com/OoC51rX7qUafrTNhcLgGMY1Nr_4l_BZk0wAOLV-zST4.jpg",
+"height": 110, "width": 140},
+"created_utc": 1515928689.0, "author": "bananahands0666", "id": "7qbcqw", "ups": 63386, "downs": 0, "media": "https://i.redd.it/qt5p8ozio0a01.png"}
+
+1. All videos in the world
+db.youtubeinfo.aggregate([ { "$unwind": "$items" }, { "$unwind": "$items.snippet" }, {$group : {_id : "$items.snippet.title", cat_count : {$sum : 1}}}])
+
+db.youtubeinfo.aggregate([ { "$unwind": "$items" }, { "$unwind": "$items.snippet" }, {$group : {_id : "$items.snippet.channelId", cat_count : {$sum : 1}}}])
+
+db.youtubeinfo.aggregate([ { "$unwind": "$items" }, { "$unwind": "$items.snippet" }, {$group : {_id : "$items.snippet.assignable", cat_count : {$sum : 1}}}])
+
+db.youtubeinfo.aggregate([ { "$unwind": "$items" }, { "$unwind": "$items.snippet" }, {$group : {_id : {"Title":"$items.snippet.title", "Assignable":"$items.snippet.assignable"}, cat_count : {$sum : 1}}}])
+
+2. Reddit memes
+db.redditmemes.aggregate([{ $bucket : {groupBy : "$ups", boundaries : [0, 10000, 25000, 50000, 100000], default: "Other", output: {"count": { $sum: 1 }}}}])
+db.redditmemes.aggregate([{ $bucket : {groupBy : "$downs", boundaries : [0, 100, 250, 500, 1000], default: "Other", output: {"count": { $sum: 1 }}}}])
+
+db.redditmemes.aggregate([{$group : {_id : "$author", count : {$sum : 1}}}, {$sort : {count : -1}}, {$limit : 10}])
+
+db.redditmemes.aggregate([{$group : {_id : "$author", count : {$sum : "$ups"}}}, {$sort : {count : -1}}, {$limit : 10}])
+
+ db.redditmemes.aggregate([{$group : {_id : {$cond : {if : {$gte : ["$thumbail.height", "$thumbnail.width"]}, then:0, else:1}}, count : {$sum : {$cond : {if : {$gte : ["$thumbail.height", "$thumbnail.width"]}, then:-1, else:1}}}}}, {$sort : {count : -1}}, {$limit : 10}])
